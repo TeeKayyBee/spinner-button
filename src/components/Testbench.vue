@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 import { 
   CheckboxRoot, 
   CheckboxIndicator, 
@@ -39,6 +39,19 @@ function setState(newState) {
   clearTimer()
   state.value = newState
 }
+
+watch(state, (newState) => {
+  if (newState !== 'running') {
+    clearTimer()
+  }
+})
+
+watch(enabled, (isEnabled) => {
+  if (!isEnabled) {
+    clearTimer()
+    state.value = 'idle'
+  }
+})
 
 onBeforeUnmount(() => {
   clearTimer()
@@ -80,7 +93,7 @@ onBeforeUnmount(() => {
 
       <div class="select-wrapper">
         <span class="label-text">State:</span>
-        <SelectRoot v-model="state" @update:model-value="clearTimer">
+        <SelectRoot v-model="state">
           <SelectTrigger class="select-trigger">
             <SelectValue placeholder="State wählen" />
           </SelectTrigger>
