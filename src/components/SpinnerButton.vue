@@ -1,12 +1,25 @@
 <script setup>
+/**
+ * @file SpinnerButton.vue
+ * @description Accessible, encapsulated button component featuring an animated circular status indicator.
+ */
 import { computed } from 'vue'
 import { Primitive } from 'reka-ui'
 
+/**
+ * Component Props definition.
+ */
 const props = defineProps({
+  /**
+   * Controls whether the button is interactable and enabled.
+   */
   spinnerEnabled: { 
     type: Boolean, 
     default: false 
   },
+  /**
+   * Defines current operational state ('idle' | 'running' | 'done').
+   */
   spinnerState: { 
     type: String, 
     default: 'idle',
@@ -14,29 +27,51 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['click'])
+/**
+ * Component Emits definition.
+ */
+const emit = defineEmits([
+  /**
+   * Emitted when the inner button is clicked and not disabled.
+   * @event click
+   */
+  'click'
+])
 
+/**
+ * Computes whether the button interaction should be disabled.
+ * @type {import('vue').ComputedRef<boolean>}
+ */
 const isDisabled = computed(() => !props.spinnerEnabled || props.spinnerState !== 'idle')
 
-const visual = computed(() => {
-  if (!props.spinnerEnabled) return 'disabled'
-  return props.spinnerState
+/**
+ * Computes modifier class names dynamically to avoid dead/unused CSS classes in DOM.
+ * @type {import('vue').ComputedRef<string>}
+ */
+const modifierClass = computed(() => {
+  if (!props.spinnerEnabled) return 'is-disabled'
+  if (props.spinnerState === 'running') return 'is-running'
+  if (props.spinnerState === 'done') return 'is-done'
+  return ''
 })
 
+/**
+ * Handles click events on the button element.
+ * @returns {void}
+ */
 function handleClick() {
   if (!isDisabled.value) emit('click')
 }
 </script>
 
 <template>
-  <div class="spinner-btn" :class="`is-${visual}`">
+  <div class="spinner-btn" :class="modifierClass">
     <Primitive
       as="button"
       type="button"
       class="inner-btn"
       :disabled="isDisabled"
       :aria-busy="props.spinnerState === 'running'"
-      :aria-disabled="isDisabled"
       @click="handleClick"
     >
       <slot>btn</slot>

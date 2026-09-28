@@ -1,5 +1,10 @@
 <script setup>
-import { ref, watch, onBeforeUnmount } from 'vue'
+/**
+ * @file Testbench.vue
+ * @description Interactive testing environment for the SpinnerButton component.
+ * Manages timer lifecycles and controls for state transitions without reactive watchers.
+ */
+import { ref, onBeforeUnmount } from 'vue'
 import { 
   CheckboxRoot, 
   CheckboxIndicator, 
@@ -11,11 +16,28 @@ import {
 } from 'reka-ui'
 import SpinnerButton from './SpinnerButton.vue'
 
+/**
+ * Indicates whether the SpinnerButton is interactive.
+ * @type {import('vue').Ref<boolean>}
+ */
 const enabled = ref(true)
+
+/**
+ * Current visual and functional state of the SpinnerButton ('idle' | 'running' | 'done').
+ * @type {import('vue').Ref<string>}
+ */
 const state = ref('idle')
 
+/**
+ * Holds reference to the active setTimeout timer.
+ * @type {number|null}
+ */
 let timer = null
 
+/**
+ * Clears any active timer to prevent memory leaks and race conditions.
+ * @returns {void}
+ */
 function clearTimer() {
   if (timer) {
     clearTimeout(timer)
@@ -23,6 +45,10 @@ function clearTimer() {
   }
 }
 
+/**
+ * Triggers the 10-second async execution flow when the button is clicked in 'idle' state.
+ * @returns {void}
+ */
 function handleStart() {
   if (!enabled.value || state.value !== 'idle') return
   clearTimer()
@@ -35,24 +61,32 @@ function handleStart() {
   }, 10000)
 }
 
+/**
+ * Explicitly updates the button state and cancels any running timer.
+ * @param {string} newState - Target state to set ('idle' | 'running' | 'done').
+ * @returns {void}
+ */
 function setState(newState) {
   clearTimer()
   state.value = newState
 }
 
-watch(state, (newState) => {
-  if (newState !== 'running') {
-    clearTimer()
-  }
-})
-
-watch(enabled, (isEnabled) => {
-  if (!isEnabled) {
+/**
+ * Handles toggling the enabled state. Resets state to 'idle' and clears active timers when disabled.
+ * @param {boolean} val - Enabled state boolean from checkbox.
+ * @returns {void}
+ */
+function toggleEnabled(val) {
+  enabled.value = val
+  if (!val) {
     clearTimer()
     state.value = 'idle'
   }
-})
+}
 
+/**
+ * Component unmount lifecycle hook to prevent dangling timers.
+ */
 onBeforeUnmount(() => {
   clearTimer()
 })
@@ -76,6 +110,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="controls">
+      <!-- Quick Reset / State Buttons -->
       <div class="select-wrapper">
         <span class="label-text">Quick Set / Reset:</span>
         <div class="state-btn-group">
@@ -84,18 +119,27 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
+      <!-- Toggle Enabled -->
       <label class="cb-label">
-        <CheckboxRoot v-model="enabled" class="cb-root">
+        <CheckboxRoot 
+          :model-value="enabled" 
+          class="cb-root"
+          @update:model-value="toggleEnabled"
+        >
           <CheckboxIndicator class="cb-indicator">✓</CheckboxIndicator>
         </CheckboxRoot>
         Enabled
       </label>
 
+      <!-- Select State Dropdown -->
       <div class="select-wrapper">
         <span class="label-text">State:</span>
-        <SelectRoot v-model="state">
+        <SelectRoot 
+          :model-value="state" 
+          @update:model-value="setState"
+        >
           <SelectTrigger class="select-trigger">
-            <SelectValue placeholder="State wählen" />
+            <SelectValue placeholder="Select State" />
           </SelectTrigger>
           <SelectContent class="select-content">
             <SelectItem value="idle" class="select-item">idle</SelectItem>

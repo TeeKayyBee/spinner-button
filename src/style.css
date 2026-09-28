@@ -1,3 +1,9 @@
+/**
+ * @file global.css
+ * @description Global application styles, reset rules, and layout containers for the Testbench.
+ */
+
+/* Layout & Base Styles */
 body {
   font-family: system-ui, -apple-system, sans-serif;
   background-color: #f4f4f9;
@@ -53,6 +59,7 @@ body {
   background: #e0e0e0;
 }
 
+/* Reka UI Control Styles */
 .cb-label {
   display: flex;
   align-items: center;
@@ -107,7 +114,7 @@ body {
   border: 1px solid #000;
   border-radius: 6px;
   padding: 0.25rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .select-item {
