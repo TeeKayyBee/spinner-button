@@ -2,7 +2,6 @@
 /**
  * @file Testbench.vue
  * @description Interactive testing environment for the SpinnerButton component.
- * Manages timer lifecycles and controls for state transitions without reactive watchers.
  */
 import { ref, onBeforeUnmount } from 'vue'
 import { 
@@ -17,10 +16,10 @@ import {
 import SpinnerButton from './SpinnerButton.vue'
 
 /**
- * Indicates whether the SpinnerButton is interactive.
+ * Controls whether the SpinnerButton is interactive.
  * @type {import('vue').Ref<boolean>}
  */
-const enabled = ref(true)
+const isDisabled = ref(false)
 
 /**
  * Current visual and functional state of the SpinnerButton ('idle' | 'running' | 'done').
@@ -46,11 +45,11 @@ function clearTimer() {
 }
 
 /**
- * Triggers the 10-second async execution flow when the button is clicked in 'idle' state.
+ * Triggers the 10-second async execution flow when clicked in 'idle' state.
  * @returns {void}
  */
 function handleStart() {
-  if (!enabled.value || state.value !== 'idle') return
+  if (isDisabled.value || state.value !== 'idle') return
   clearTimer()
   
   state.value = 'running'
@@ -72,13 +71,13 @@ function setState(newState) {
 }
 
 /**
- * Handles toggling the enabled state. Resets state to 'idle' and clears active timers when disabled.
- * @param {boolean} val - Enabled state boolean from checkbox.
+ * Handles toggling the disabled state. Resets state to 'idle' and clears active timers when disabled.
+ * @param {boolean} val - Disabled state boolean from checkbox.
  * @returns {void}
  */
-function toggleEnabled(val) {
-  enabled.value = val
-  if (!val) {
+function toggleDisabled(val) {
+  isDisabled.value = val
+  if (val) {
     clearTimer()
     state.value = 'idle'
   }
@@ -97,12 +96,13 @@ onBeforeUnmount(() => {
     <h1>SpinnerButton Testbench</h1>
 
     <div class="demo-area">
+      <!-- Clean native API usage: :disabled, :state and native @click passing via $attrs -->
       <SpinnerButton
-        :spinner-enabled="enabled"
-        :spinner-state="state"
+        :disabled="isDisabled"
+        :state="state"
         @click="handleStart"
       >
-        <span v-if="!enabled">Disabled</span>
+        <span v-if="isDisabled">Disabled</span>
         <span v-else-if="state === 'running'">Wait...</span>
         <span v-else-if="state === 'done'">Done</span>
         <span v-else>Start</span>
@@ -119,16 +119,16 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Toggle Enabled -->
+      <!-- Toggle Disabled -->
       <label class="cb-label">
         <CheckboxRoot 
-          :model-value="enabled" 
+          :model-value="isDisabled" 
           class="cb-root"
-          @update:model-value="toggleEnabled"
+          @update:model-value="toggleDisabled"
         >
           <CheckboxIndicator class="cb-indicator">✓</CheckboxIndicator>
         </CheckboxRoot>
-        Enabled
+        Disabled
       </label>
 
       <!-- Select State Dropdown -->

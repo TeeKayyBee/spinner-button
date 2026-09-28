@@ -1,26 +1,28 @@
 <script setup>
 /**
  * @file SpinnerButton.vue
- * @description Accessible, encapsulated button component featuring an animated circular status indicator.
+ * @description Accessible, encapsulated button component featuring an animated status indicator.
  */
 import { computed } from 'vue'
 import { Primitive } from 'reka-ui'
 
-/**
- * Component Props definition.
- */
+defineOptions({
+  // Allows manual binding of $attrs to the inner Primitive element
+  inheritAttrs: false,
+})
+
 const props = defineProps({
   /**
-   * Controls whether the button is interactable and enabled.
+   * Standard HTML disabled flag.
    */
-  spinnerEnabled: { 
+  disabled: { 
     type: Boolean, 
     default: false 
   },
   /**
-   * Defines current operational state ('idle' | 'running' | 'done').
+   * Operational state indicator ('idle' | 'running' | 'done').
    */
-  spinnerState: { 
+  state: { 
     type: String, 
     default: 'idle',
     validator: (value) => ['idle', 'running', 'done'].includes(value)
@@ -28,40 +30,21 @@ const props = defineProps({
 })
 
 /**
- * Component Emits definition.
- */
-const emit = defineEmits([
-  /**
-   * Emitted when the inner button is clicked and not disabled.
-   * @event click
-   */
-  'click'
-])
-
-/**
- * Computes whether the button interaction should be disabled.
- * @type {import('vue').ComputedRef<boolean>}
- */
-const isDisabled = computed(() => !props.spinnerEnabled || props.spinnerState !== 'idle')
-
-/**
- * Computes modifier class names dynamically to avoid dead/unused CSS classes in DOM.
+ * Computes modifier class names without emitting unstyled 'is-idle' classes.
  * @type {import('vue').ComputedRef<string>}
  */
 const modifierClass = computed(() => {
-  if (!props.spinnerEnabled) return 'is-disabled'
-  if (props.spinnerState === 'running') return 'is-running'
-  if (props.spinnerState === 'done') return 'is-done'
+  if (props.disabled) return 'is-disabled'
+  if (props.state === 'running') return 'is-running'
+  if (props.state === 'done') return 'is-done'
   return ''
 })
 
 /**
- * Handles click events on the button element.
- * @returns {void}
+ * Ensures the inner button element is disabled during execution or via explicit prop.
+ * @type {import('vue').ComputedRef<boolean>}
  */
-function handleClick() {
-  if (!isDisabled.value) emit('click')
-}
+const isButtonDisabled = computed(() => props.disabled || props.state !== 'idle')
 </script>
 
 <template>
@@ -70,9 +53,9 @@ function handleClick() {
       as="button"
       type="button"
       class="inner-btn"
-      :disabled="isDisabled"
-      :aria-busy="props.spinnerState === 'running'"
-      @click="handleClick"
+      v-bind="$attrs"
+      :disabled="isButtonDisabled"
+      :aria-busy="props.state === 'running'"
     >
       <slot>btn</slot>
     </Primitive>
@@ -148,7 +131,8 @@ svg {
   transform: scale(0.97);
 }
 
-.inner-btn:not(:disabled):active ~ svg .ring {
+/* Decoupled interaction glow: triggers whenever the inner-btn inside .spinner-btn is active */
+.spinner-btn:has(.inner-btn:not(:disabled):active) .ring {
   stroke: var(--green);
   stroke-dasharray: 360 0;
   animation: press-glow 600ms ease-in-out infinite;
