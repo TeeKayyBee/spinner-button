@@ -15,30 +15,30 @@ const enabled = ref(true)
 const state = ref('idle')
 
 let timer = null
-let resetTimer = null
 
-function clearTimers() {
-  if (timer) clearTimeout(timer)
-  if (resetTimer) clearTimeout(resetTimer)
+function clearTimer() {
+  if (timer) {
+    clearTimeout(timer)
+    timer = null
+  }
 }
 
 function handleStart() {
   if (!enabled.value || state.value !== 'idle') return
-  clearTimers()
+  clearTimer()
   
   state.value = 'running'
   
+  // Timer startet und setzt nach 10 Sekunden den Zustand auf 'done'
   timer = setTimeout(() => {
     state.value = 'done'
-    
-    resetTimer = setTimeout(() => {
-      state.value = 'idle'
-    }, 2000)
+    timer = null
   }, 10000)
 }
 
+// Stellt sicher, dass bei Komponentenelement-Abbau kein Timer weiterläuft
 onBeforeUnmount(() => {
-  clearTimers()
+  clearTimer()
 })
 </script>
 

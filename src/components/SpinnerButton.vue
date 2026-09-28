@@ -3,8 +3,15 @@ import { computed } from 'vue'
 import { Primitive } from 'reka-ui'
 
 const props = defineProps({
-  spinnerEnabled: { type: Boolean, default: false },
-  spinnerState: { type: String, default: 'idle' },
+  spinnerEnabled: { 
+    type: Boolean, 
+    default: false 
+  },
+  spinnerState: { 
+    type: String, 
+    default: 'idle',
+    validator: (value) => ['idle', 'running', 'done'].includes(value)
+  },
 })
 
 const emit = defineEmits(['click'])
@@ -23,11 +30,14 @@ function handleClick() {
 
 <template>
   <div class="spinner-btn" :class="`is-${visual}`">
+    <!-- Button zuerst positioniert, um das nachfolgende SVG via CSS ~ Selector zu steuern -->
     <Primitive
       as="button"
       type="button"
       class="inner-btn"
       :disabled="isDisabled"
+      :aria-busy="props.spinnerState === 'running'"
+      :aria-disabled="isDisabled"
       @click="handleClick"
     >
       <slot>btn</slot>
@@ -104,6 +114,7 @@ svg {
   transform: scale(0.97);
 }
 
+/* Kaskadierender Effekt: Gedrückter Button aktiviert den Ring-Glow im SVG */
 .inner-btn:not(:disabled):active ~ svg .ring {
   stroke: var(--green);
   stroke-dasharray: 360 0;
