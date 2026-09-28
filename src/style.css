@@ -1,0 +1,218 @@
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #f4f4f9;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.demo-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 220px;
+}
+
+.state-btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-action {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #000;
+  border-radius: 6px;
+  background: #f0f0f0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.btn-action:hover {
+  background: #e0e0e0;
+}
+
+.cb-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.cb-root {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000;
+  border-radius: 4px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cb-indicator {
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.label-text {
+  font-size: 0.9rem;
+}
+
+.select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #000;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.select-content {
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 6px;
+  padding: 0.25rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.select-item {
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+}
+
+.select-item[data-highlighted] {
+  background: #f0f0f0;
+}
+
+/* SpinnerButton Styles */
+.spinner-btn {
+  --size: 120px;
+  --bg: #fff;
+  --green: #82b366;
+  --gray: #999;
+  --line: #000;
+  --arc: 90;
+  --gap: 270;
+  --cycle: 1500ms;
+
+  position: relative;
+  width: var(--size);
+  aspect-ratio: 1;
+}
+
+.spinner-btn svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.spinner-btn .outer {
+  fill: var(--bg);
+  stroke: var(--line);
+  stroke-width: 3;
+}
+
+.spinner-btn .ring {
+  fill: none;
+  stroke-width: 14;
+  stroke: transparent;
+  stroke-dasharray: 0 360;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke 120ms ease, stroke-dasharray 120ms ease;
+}
+
+.spinner-btn .inner-btn {
+  position: absolute;
+  inset: 14%;
+  z-index: 1;
+  border-radius: 50%;
+  border: calc(var(--size) * 0.025) solid var(--line);
+  background: var(--bg);
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.spinner-btn .inner-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.spinner-btn .inner-btn:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.spinner-btn .inner-btn:not(:disabled):active ~ svg .ring {
+  stroke: var(--green);
+  stroke-dasharray: 360 0;
+  animation: press-glow 600ms ease-in-out infinite;
+}
+
+.spinner-btn.is-done .ring {
+  stroke: var(--green);
+  stroke-dasharray: 360 0;
+}
+
+.spinner-btn.is-running .ring {
+  stroke: var(--green);
+  stroke-dasharray: var(--arc) var(--gap);
+  animation: spin var(--cycle) linear infinite;
+}
+
+.spinner-btn.is-disabled .ring {
+  stroke: var(--gray);
+  stroke-dasharray: 360 0;
+}
+
+@keyframes press-glow {
+  0%, 100% { filter: drop-shadow(0 0 3px var(--green)); }
+  50%      { filter: drop-shadow(0 0 9px var(--green)); }
+}
+
+@keyframes spin {
+  from { transform: rotate(-90deg); }
+  to   { transform: rotate(270deg); }
+}
