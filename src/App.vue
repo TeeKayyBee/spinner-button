@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onBeforeUnmount } from 'vue'
 import { 
   CheckboxRoot, 
   CheckboxIndicator, 
@@ -15,15 +15,31 @@ const enabled = ref(true)
 const state = ref('idle')
 
 let timer = null
+let resetTimer = null
+
+function clearTimers() {
+  if (timer) clearTimeout(timer)
+  if (resetTimer) clearTimeout(resetTimer)
+}
 
 function handleStart() {
   if (!enabled.value || state.value !== 'idle') return
-  if (timer) clearTimeout(timer)
+  clearTimers()
+  
   state.value = 'running'
+  
   timer = setTimeout(() => {
     state.value = 'done'
+    
+    resetTimer = setTimeout(() => {
+      state.value = 'idle'
+    }, 2000)
   }, 10000)
 }
+
+onBeforeUnmount(() => {
+  clearTimers()
+})
 </script>
 
 <template>
@@ -35,7 +51,6 @@ function handleStart() {
         :spinner-enabled="enabled"
         :spinner-state="state"
         @click="handleStart"
-        @activate="handleStart"
       >
         <span v-if="!enabled">Disabled</span>
         <span v-else-if="state === 'running'">Wait...</span>

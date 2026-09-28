@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onBeforeUnmount } from 'vue'
+import { computed } from 'vue'
 import { Primitive } from 'reka-ui'
 
 const props = defineProps({
@@ -7,61 +7,36 @@ const props = defineProps({
   spinnerState: { type: String, default: 'idle' },
 })
 
-const emit = defineEmits(['click', 'activate'])
-
-const isHovered = ref(false)
-const isPressed = ref(false)
+const emit = defineEmits(['click'])
 
 const isDisabled = computed(() => !props.spinnerEnabled || props.spinnerState !== 'idle')
 
 const visual = computed(() => {
   if (!props.spinnerEnabled) return 'disabled'
-  if (isPressed.value && props.spinnerState === 'idle') return 'press'
   return props.spinnerState
 })
-
-function handleMouseDown(e) {
-  if (e.button !== 0 || isDisabled.value) return
-  isPressed.value = true
-
-  const handleMouseUp = (upEv) => {
-    if (upEv.button !== 0) return
-    window.removeEventListener('mouseup', handleMouseUp)
-    if (isHovered.value && !isDisabled.value) emit('activate')
-    isPressed.value = false
-  }
-
-  window.addEventListener('mouseup', handleMouseUp)
-}
 
 function handleClick() {
   if (!isDisabled.value) emit('click')
 }
-
-onBeforeUnmount(() => {
-  isPressed.value = false
-})
 </script>
 
 <template>
   <div class="spinner-btn" :class="`is-${visual}`">
-    <svg viewBox="0 0 120 120" aria-hidden="true">
-      <circle class="outer" cx="60" cy="60" r="58.5" />
-      <circle class="ring" cx="60" cy="60" r="50" pathLength="360" />
-    </svg>
-
     <Primitive
       as="button"
       type="button"
       class="inner-btn"
       :disabled="isDisabled"
-      @mouseenter="isHovered = true"
-      @mouseleave="isHovered = false"
-      @mousedown="handleMouseDown"
       @click="handleClick"
     >
       <slot>btn</slot>
     </Primitive>
+
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="outer" cx="60" cy="60" r="58.5" />
+      <circle class="ring" cx="60" cy="60" r="50" pathLength="360" />
+    </svg>
   </div>
 </template>
 
@@ -107,7 +82,8 @@ svg {
 
 .inner-btn {
   position: absolute;
-  inset: calc(var(--size) * 17 / 120);
+  inset: 14%;
+  z-index: 1;
   border-radius: 50%;
   border: calc(var(--size) * 0.025) solid var(--line);
   background: var(--bg);
@@ -128,9 +104,10 @@ svg {
   transform: scale(0.97);
 }
 
-.is-disabled .ring {
-  stroke: var(--gray) !important;
-  stroke-dasharray: 360 0 !important;
+.inner-btn:not(:disabled):active ~ svg .ring {
+  stroke: var(--green);
+  stroke-dasharray: 360 0;
+  animation: press-glow 600ms ease-in-out infinite;
 }
 
 .is-done .ring {
@@ -138,16 +115,15 @@ svg {
   stroke-dasharray: 360 0;
 }
 
-.is-press .ring {
-  stroke: var(--green);
-  stroke-dasharray: 360 0;
-  animation: press-glow 600ms ease-in-out infinite;
-}
-
 .is-running .ring {
   stroke: var(--green);
   stroke-dasharray: var(--arc) var(--gap);
   animation: spin var(--cycle) linear infinite;
+}
+
+.is-disabled .ring {
+  stroke: var(--gray);
+  stroke-dasharray: 360 0;
 }
 
 @keyframes press-glow {
